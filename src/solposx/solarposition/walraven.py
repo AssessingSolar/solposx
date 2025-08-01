@@ -44,7 +44,7 @@ def walraven(times, latitude, longitude):
     """
     times_utc = _pandas_to_utc(times)
 
-    longitude = - longitude  # outdated convention used by Walraven
+    longitude = -longitude  # outdated convention used by Walraven
 
     year = times_utc.year
     day = times_utc.dayofyear
@@ -52,7 +52,7 @@ def walraven(times, latitude, longitude):
 
     delta = year - 1980
 
-    leap = np.int64(delta / 4.)  # round towards zero
+    leap = np.int64(delta / 4.0)  # round towards zero
 
     time = delta * 365 + leap + day - 1 + T / 24
 
@@ -67,9 +67,13 @@ def walraven(times, latitude, longitude):
     g = -0.031271 - 4.53963 * 10**-7 * time + theta
 
     # longitude of the sun [rad]
-    L = (4.900968 + (3.67474 * 10**-7) * time +
-         (0.033434 - 2.3 * 10**-9 * time) * np.sin(g) +
-         0.000349 * np.sin(2 * g) + theta)
+    L = (
+        4.900968
+        + (3.67474 * 10**-7) * time
+        + (0.033434 - 2.3 * 10**-9 * time) * np.sin(g)
+        + 0.000349 * np.sin(2 * g)
+        + theta
+    )
 
     # angle between the plane of the ecliptic and the plane of the
     # celestial equator [rad]
@@ -103,8 +107,7 @@ def walraven(times, latitude, longitude):
     PHI = np.deg2rad(latitude)
 
     # elevation [rad]
-    E = np.arcsin(
-        np.sin(PHI) * np.sin(DECL) + np.cos(PHI) * np.cos(DECL) * np.cos(H))
+    E = np.arcsin(np.sin(PHI) * np.sin(DECL) + np.cos(PHI) * np.cos(DECL) * np.cos(H))
 
     # azimuth [deg]
     A = np.rad2deg(np.arcsin(np.cos(DECL) * np.sin(H) / np.cos(E)))
@@ -114,9 +117,12 @@ def walraven(times, latitude, longitude):
     A = np.where((cos_az >= 0) & (np.sin(np.deg2rad(A)) < 0), 360 + A, A)
     A = np.where(cos_az < 0, 180 - A, A)
 
-    result = pd.DataFrame({
-        'elevation': np.rad2deg(E),
-        'zenith': 90 - np.rad2deg(E),
-        'azimuth': A,
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": np.rad2deg(E),
+            "zenith": 90 - np.rad2deg(E),
+            "azimuth": A,
+        },
+        index=times,
+    )
     return result

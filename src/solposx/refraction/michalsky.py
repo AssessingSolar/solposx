@@ -36,8 +36,10 @@ def michalsky(elevation):
     """  # noqa: #501
     # note that 3.51561 = 1013.2 mb / 288.2 deg C
     refraction_correction = (
-        3.51561 * (0.1594 + 0.0196 * elevation + 0.00002 * elevation**2) /
-        (1 + 0.505 * elevation + 0.0845 * elevation**2))
+        3.51561
+        * (0.1594 + 0.0196 * elevation + 0.00002 * elevation**2)
+        / (1 + 0.505 * elevation + 0.0845 * elevation**2)
+    )
 
     refraction_correction[elevation < -0.56] = 0.56
 
