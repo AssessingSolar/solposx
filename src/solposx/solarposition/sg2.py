@@ -4,8 +4,7 @@ from solposx.tools import _pandas_to_utc, _fractional_hour
 from solposx import refraction
 
 
-def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
-        temperature=12):
+def sg2(times, latitude, longitude, elevation=0, air_pressure=101325, temperature=12):
     """
     Calculate solar position using the SG2 algorithm.
 
@@ -75,36 +74,57 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     year_dec = year + (month - 0.5) / 12
 
     # parameters for calculating delta_t
-    params_t = pd.DataFrame(np.array(
-        [[1975, 45.45, 1.067, -1 / 260, -1 / 718, 0, 0],  # [1980, 1986]
-         [2000, 63.86, 0.3345, -0.060374, 0.0017275, 6.518*10**-4,
-          2.374*10**-5],  # [1986, 2005]
-         [2000, 63.48, 0.2040, 0.005576, 0, 0, 0]  # [2005, 2030]
-         ]),
-        columns=['y', 'a_0', 'a_1', 'a_2', 'a_3', 'a_4', 'a_5'])
+    params_t = pd.DataFrame(
+        np.array(
+            [
+                [1975, 45.45, 1.067, -1 / 260, -1 / 718, 0, 0],  # [1980, 1986]
+                [
+                    2000,
+                    63.86,
+                    0.3345,
+                    -0.060374,
+                    0.0017275,
+                    6.518 * 10**-4,
+                    2.374 * 10**-5,
+                ],  # [1986, 2005]
+                [2000, 63.48, 0.2040, 0.005576, 0, 0, 0],  # [2005, 2030]
+            ]
+        ),
+        columns=["y", "a_0", "a_1", "a_2", "a_3", "a_4", "a_5"],
+    )
 
     if (year_dec < 1980) | (year_dec > 2030):
         raise ValueError("The algorithm is valid only between 1980 and 2030")
 
     row = np.where(
-        (year_dec >= 1980) & (year_dec <= 1986), 0,
-        np.where((year_dec >= 1986) & (year_dec <= 2005), 1,
-                 np.where((year_dec >= 2005) & (year_dec <= 2030), 2,
-                          np.nan
-                          ))).astype(int)[0]
+        (year_dec >= 1980) & (year_dec <= 1986),
+        0,
+        np.where(
+            (year_dec >= 1986) & (year_dec <= 2005),
+            1,
+            np.where((year_dec >= 2005) & (year_dec <= 2030), 2, np.nan),
+        ),
+    ).astype(int)[0]
 
     delta_t = 0.0
     for k in range(0, 6):
-        delta_t += (params_t[f'a_{k}'][row]
-                    * (year - params_t['y'][row])**k)
+        delta_t += params_t[f"a_{k}"][row] * (year - params_t["y"][row]) ** k
 
     year_mod = np.where((month == 1) | (month == 2), year - 1, year)
     month_mod = np.where((month == 1) | (month == 2), month + 12, month)
 
     # SG2 C-code implementation (differs from journal paper!)
-    jd_ut = (1721028.0 + day + np.floor((153.0 * month_mod - 2.0) / 5.0)
-             + 365.0 * year_mod + np.floor(year_mod / 4.0) + hour / 24 - 0.5
-             - np.floor(year_mod / 100.0) + np.floor(year_mod / 400.0))
+    jd_ut = (
+        1721028.0
+        + day
+        + np.floor((153.0 * month_mod - 2.0) / 5.0)
+        + 365.0 * year_mod
+        + np.floor(year_mod / 4.0)
+        + hour / 24
+        - 0.5
+        - np.floor(year_mod / 100.0)
+        + np.floor(year_mod / 400.0)
+    )
 
     jd_tt = jd_ut + delta_t / 86400
 
@@ -112,25 +132,29 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     jd_tt_mod = jd_tt - 2444239.5
 
     # Earth heliocentric longitude
-    params = pd.DataFrame(np.array(
-        [[1 / 365.261278, 3.401508 * 10**-2, 1.600780],
-         [1 / 182.632412, 3.486440 * 10**-4, 1.662976],
-         [1 / 29.530634, 3.136227 * 10**-5, -1.195905],
-         [1 / 399.529850, 3.578979 * 10**-5, -1.042052],
-         [1 / 291.956812, 2.676185 * 10**-5, 2.012613],
-         [1 / 583.598201, 2.333925 * 10**-5, -2.867714],
-         [1 / 4652.629372, 1.221214 * 10**-5, 1.225038],
-         [1 / 1450.236684, 1.217941 * 10**-5, -0.828601],
-         [1 / 199.459709, 1.343914 * 10**-5, -3.108253],
-         [1 / 365.355291, 8.499475 * 10**-4, -2.353709]
-         ]),
-        columns=['f_L', 'rho_L', 'phi_L'])
+    params = pd.DataFrame(
+        np.array(
+            [
+                [1 / 365.261278, 3.401508 * 10**-2, 1.600780],
+                [1 / 182.632412, 3.486440 * 10**-4, 1.662976],
+                [1 / 29.530634, 3.136227 * 10**-5, -1.195905],
+                [1 / 399.529850, 3.578979 * 10**-5, -1.042052],
+                [1 / 291.956812, 2.676185 * 10**-5, 2.012613],
+                [1 / 583.598201, 2.333925 * 10**-5, -2.867714],
+                [1 / 4652.629372, 1.221214 * 10**-5, 1.225038],
+                [1 / 1450.236684, 1.217941 * 10**-5, -0.828601],
+                [1 / 199.459709, 1.343914 * 10**-5, -3.108253],
+                [1 / 365.355291, 8.499475 * 10**-4, -2.353709],
+            ]
+        ),
+        columns=["f_L", "rho_L", "phi_L"],
+    )
 
     # I reshape the jd and dataframe in order to do the sum operation
     jd_tt_mod_reshaped = jd_tt_mod.to_numpy().reshape(len(jd_tt_mod), 1)
-    f_L = params['f_L'].to_numpy().reshape(1, 10)
-    rho_L = params['rho_L'].to_numpy().reshape(1, 10)
-    phi_L = params['phi_L'].to_numpy().reshape(1, 10)
+    f_L = params["f_L"].to_numpy().reshape(1, 10)
+    rho_L = params["rho_L"].to_numpy().reshape(1, 10)
+    phi_L = params["phi_L"].to_numpy().reshape(1, 10)
 
     # Compute the sum term
     sums = rho_L * np.cos(2 * np.pi * f_L * jd_tt_mod_reshaped - phi_L)
@@ -139,7 +163,7 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     a_L = 1 / 58.130101
     b_L = 1.742145
 
-    L = (sums.sum(axis=1) + a_L * jd_tt_mod + b_L) % (2*np.pi)
+    L = (sums.sum(axis=1) + a_L * jd_tt_mod + b_L) % (2 * np.pi)
 
     # Geocentric parameters
     D_t = -9.933735 * 10**-5  # [rad]
@@ -159,11 +183,12 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     phi_e = 2.660352
 
     # true Earth obliquityn[rad]
-    epsilon = (rho_e * np.cos(2 * np.pi * f_e * jd_tt_mod - phi_e) + a_e
-               * jd_tt_mod + b_e)
+    epsilon = (
+        rho_e * np.cos(2 * np.pi * f_e * jd_tt_mod - phi_e) + a_e * jd_tt_mod + b_e
+    )
 
     # Apparent Sun geocentric longitude [rad]
-    Theta = (L + np.pi + D_psi + D_t) % (2*np.pi)
+    Theta = (L + np.pi + D_psi + D_t) % (2 * np.pi)
 
     # Sun Geocentric declination [rad]
     decl_g = np.arcsin(np.sin(Theta) * np.sin(epsilon))
@@ -172,7 +197,7 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     ra = np.arctan2(np.sin(Theta) * np.cos(epsilon), np.cos(Theta))
 
     # mean sidereal time [rad]
-    mst = (6.300388099 * jd_ut_mod + 1.742079) % (2*np.pi)
+    mst = (6.300388099 * jd_ut_mod + 1.742079) % (2 * np.pi)
 
     a = 6378140.0  # m
     # b = 6357014.436696  # m
@@ -193,41 +218,50 @@ def sg2(times, latitude, longitude, elevation=0, air_pressure=101325,
     omega_g = v + longitude - ra
 
     # Parallax effects in the Sun right ascension [rad]
-    D_r_a = - x * np.sin(omega_g) / np.cos(decl_g) * xi
+    D_r_a = -x * np.sin(omega_g) / np.cos(decl_g) * xi
 
     # Sun topocentric declination [rad]
-    declination = decl_g + (x * np.cos(omega_g) * np.sin(decl_g)
-                            - y * np.cos(decl_g)) * xi
+    declination = (
+        decl_g + (x * np.cos(omega_g) * np.sin(decl_g) - y * np.cos(decl_g)) * xi
+    )
 
     # Sun topocentric hour angle [rad]
     omega = mst + D_psi * np.cos(epsilon) - ra + longitude - D_r_a
 
     # Sun topocentric azimuth [rad]
-    azimuth = np.arctan2(np.sin(omega), np.cos(omega) * np.sin(latitude)
-                         - np.tan(declination) * np.cos(latitude)) + np.pi
+    azimuth = (
+        np.arctan2(
+            np.sin(omega),
+            np.cos(omega) * np.sin(latitude) - np.tan(declination) * np.cos(latitude),
+        )
+        + np.pi
+    )
 
     # Sun topocentric elevation angle without refraction correction [rad]
-    elevation = np.arcsin(np.sin(latitude) * np.sin(declination)
-                          + np.cos(latitude) * np.cos(declination)
-                          * np.cos(omega))
+    elevation = np.arcsin(
+        np.sin(latitude) * np.sin(declination)
+        + np.cos(latitude) * np.cos(declination) * np.cos(omega)
+    )
 
     elevation_deg = np.rad2deg(elevation)
 
     # Atmospheric refraction correction term
     r = refraction.sg2(np.array(elevation_deg), air_pressure, temperature)
 
-    result = pd.DataFrame({
-        'elevation': elevation_deg,
-        'apparent_elevation': elevation_deg + r,
-        'zenith': 90 - elevation_deg,
-        'apparent_zenith': 90 - elevation_deg - r,
-        'azimuth': np.rad2deg(azimuth),
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": elevation_deg,
+            "apparent_elevation": elevation_deg + r,
+            "zenith": 90 - elevation_deg,
+            "apparent_zenith": 90 - elevation_deg - r,
+            "azimuth": np.rad2deg(azimuth),
+        },
+        index=times,
+    )
     return result
 
 
-def sg2_c(times, latitude, longitude, elevation=0, air_pressure=101325,
-          temperature=12):
+def sg2_c(times, latitude, longitude, elevation=0, air_pressure=101325, temperature=12):
     """
     Calculate solar position using the SG2 Python package.
 
@@ -286,8 +320,8 @@ def sg2_c(times, latitude, longitude, elevation=0, air_pressure=101325,
     except ImportError:  # pragma: no cover
         # Raise an error if package is not available
         raise ImportError(
-            'The sg2_c function requires the sg2 Python package.'
-            )  # pragma: no cover
+            "The sg2_c function requires the sg2 Python package."
+        )  # pragma: no cover
 
     # list of geopoints as 2D array of (N,3) where each row is repectively
     # longitude in degrees, latitude in degrees and altitude in meters.
@@ -305,16 +339,19 @@ def sg2_c(times, latitude, longitude, elevation=0, air_pressure=101325,
 
     apparent_elevation_rad = sg2_package.topocentric_correction_refraction_SAE(
         elevation_rad,
-        air_pressure/100,
+        air_pressure / 100,
         temperature,
     )
 
-    out = pd.DataFrame({
-        'elevation': elevation_deg,
-        'apparent_elevation': np.rad2deg(apparent_elevation_rad),
-        'zenith': 90 - elevation_deg,
-        'apparent_zenith': 90 - np.rad2deg(apparent_elevation_rad),
-        'azimuth': np.degrees(ret.topoc.alpha_S[0]),
-    }, index=times)
+    out = pd.DataFrame(
+        {
+            "elevation": elevation_deg,
+            "apparent_elevation": np.rad2deg(apparent_elevation_rad),
+            "zenith": 90 - elevation_deg,
+            "apparent_zenith": 90 - np.rad2deg(apparent_elevation_rad),
+            "azimuth": np.degrees(ret.topoc.alpha_S[0]),
+        },
+        index=times,
+    )
 
     return out
