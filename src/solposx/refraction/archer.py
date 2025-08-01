@@ -1,4 +1,5 @@
 """Archer refraction correction method."""
+
 from pvlib.tools import cosd, acosd
 
 

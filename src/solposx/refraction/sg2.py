@@ -1,8 +1,9 @@
 """SG2 refraction model."""
+
 import numpy as np
 
 
-def sg2(elevation, pressure=101325., temperature=12.):
+def sg2(elevation, pressure=101325.0, temperature=12.0):
     r"""
     Atmospheric refraction correction based on the algorithm in SG2.
 
@@ -49,13 +50,16 @@ def sg2(elevation, pressure=101325., temperature=12.):
     elevation_rad = np.deg2rad(elevation)
 
     refraction = (
-        2.96706 * 10**-4 /
-        (np.tan(elevation_rad + 0.0031376 / (elevation_rad + 0.089186))))
+        2.96706
+        * 10**-4
+        / (np.tan(elevation_rad + 0.0031376 / (elevation_rad + 0.089186)))
+    )
 
     # Apply correction term of Cornwall et al. (2011)
     low_elevation_mask = elevation_rad <= -0.01
-    refraction[low_elevation_mask] = (
-        -1.005516*10**-4 / (np.tan(elevation_rad)))[low_elevation_mask]
+    refraction[low_elevation_mask] = (-1.005516 * 10**-4 / (np.tan(elevation_rad)))[
+        low_elevation_mask
+    ]
 
     refraction = refraction * pressure / 1010 * 283 / (273 + temperature)
 

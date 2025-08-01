@@ -5,7 +5,8 @@ import pandas as pd
 try:
     # Try loading optional package
     from skyfield.api import load
-    DE440 = load('de440.bsp')
+
+    DE440 = load("de440.bsp")
     TS = load.timescale()
 except ImportError:  # pragma: no cover
     pass  # pragma: no cover
@@ -56,23 +57,26 @@ def skyfield(times, latitude, longitude, de=None):
     except ImportError:  # pragma: no cover
         # Raise an error if package is not available
         raise ImportError(
-            'The skyfield function requires the skyfield Python package.'
-            )  # pragma: no cover
+            "The skyfield function requires the skyfield Python package."
+        )  # pragma: no cover
 
     if de is None:
         de = DE440
 
-    earth = de['Earth']
-    sun = de['Sun']
+    earth = de["Earth"]
+    sun = de["Sun"]
 
     dts = TS.from_datetimes(times.to_pydatetime())
     location = earth + wgs84.latlon(latitude, longitude)
     alt, az, _ = location.at(dts).observe(sun).apparent().altaz()
 
-    result = pd.DataFrame({
-        'elevation': alt.degrees,
-        'zenith': 90 - alt.degrees,
-        'azimuth': az.degrees,
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": alt.degrees,
+            "zenith": 90 - alt.degrees,
+            "azimuth": az.degrees,
+        },
+        index=times,
+    )
 
     return result

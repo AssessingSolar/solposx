@@ -1,9 +1,10 @@
 """Hughes refraction model."""
+
 import numpy as np
 import pandas as pd
 
 
-def hughes(elevation, pressure=101325., temperature=12.):
+def hughes(elevation, pressure=101325.0, temperature=12.0):
     r"""
     Atmospheric refraction correction based on the Hughes algorithm.
 
@@ -53,18 +54,19 @@ def hughes(elevation, pressure=101325., temperature=12.):
     """  # noqa: #501
     TanEl = np.tan(np.radians(elevation))
 
-    Refract = 58.1/TanEl - 0.070/(TanEl**3) + 8.6e-05/(TanEl**5)
+    Refract = 58.1 / TanEl - 0.070 / (TanEl**3) + 8.6e-05 / (TanEl**5)
 
     low_elevation_mask = (elevation > -0.575) & (elevation <= 5)
     Refract[low_elevation_mask] = (
-        elevation *
-        (-518.2 + elevation*(103.4 + elevation*(-12.79 + elevation*0.711))) +
-        1735)[low_elevation_mask]
+        elevation
+        * (-518.2 + elevation * (103.4 + elevation * (-12.79 + elevation * 0.711)))
+        + 1735
+    )[low_elevation_mask]
 
     negative_elevation_mask = elevation <= -0.575
     Refract[negative_elevation_mask] = (-20.774 / TanEl)[negative_elevation_mask]
 
     # Correct for temperature and pressure and convert to degrees
-    Refract *= (283/(273. + temperature)) * (pressure/101325.) / 3600.
+    Refract *= (283 / (273.0 + temperature)) * (pressure / 101325.0) / 3600.0
 
     return Refract
