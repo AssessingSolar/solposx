@@ -1,8 +1,9 @@
 """SPA refraction model."""
+
 import numpy as np
 
 
-def spa(elevation, pressure=101325., temperature=12., refraction_limit=-0.5667):
+def spa(elevation, pressure=101325.0, temperature=12.0, refraction_limit=-0.5667):
     r"""
     Atmospheric refraction correction from the SPA algorithm.
 
@@ -50,8 +51,10 @@ def spa(elevation, pressure=101325., temperature=12., refraction_limit=-0.5667):
     above_horizon = elevation >= (-0.26667 + refraction_limit)
 
     refraction_correction = (
-        (pressure / 1010.0) * (283.0 / (273 + temperature))
-        * 1.02 / (60 * np.tan(np.radians(elevation + 10.3 /
-                                         (elevation + 5.11))))) * above_horizon
+        (pressure / 1010.0)
+        * (283.0 / (273 + temperature))
+        * 1.02
+        / (60 * np.tan(np.radians(elevation + 10.3 / (elevation + 5.11))))
+    ) * above_horizon
 
     return refraction_correction

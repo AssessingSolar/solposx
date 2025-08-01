@@ -5,16 +5,39 @@ from solposx.tools import _pandas_to_utc, _fractional_hour
 
 _PSA_PARAMS = {
     2020: [
-        2.267127827, -9.300339267e-4, 4.895036035, 1.720279602e-2,
-        6.239468336, 1.720200135e-2, 3.338320972e-2, 3.497596876e-4,
-        -1.544353226e-4, -8.689729360e-6, 4.090904909e-1, -6.213605399e-9,
-        4.418094944e-5, 6.697096103, 6.570984737e-2,
+        2.267127827,
+        -9.300339267e-4,
+        4.895036035,
+        1.720279602e-2,
+        6.239468336,
+        1.720200135e-2,
+        3.338320972e-2,
+        3.497596876e-4,
+        -1.544353226e-4,
+        -8.689729360e-6,
+        4.090904909e-1,
+        -6.213605399e-9,
+        4.418094944e-5,
+        6.697096103,
+        6.570984737e-2,
     ],
     2001: [
-        2.1429, -0.0010394594, 4.8950630, 0.017202791698, 6.2400600,
-        0.0172019699, 0.03341607, 0.00034894, -0.0001134, -0.0000203,
-        0.4090928, -6.2140e-09, 0.0000396, 6.6974243242, 0.0657098283,
-    ]
+        2.1429,
+        -0.0010394594,
+        4.8950630,
+        0.017202791698,
+        6.2400600,
+        0.0172019699,
+        0.03341607,
+        0.00034894,
+        -0.0001134,
+        -0.0000203,
+        0.4090928,
+        -6.2140e-09,
+        0.0000396,
+        6.6974243242,
+        0.0657098283,
+    ],
 }
 
 
@@ -91,11 +114,15 @@ def psa(times, latitude, longitude, coefficients=2020):
 
     month_term = ((time_utc.month - 14) / 12).values.astype(int)
 
-    jd = ((1461 * ((year + 4800 + month_term)) / 4).astype(int)
-          + (367 * ((month - 2 - 12 * (month_term))) / 12).astype(int)
-          - ((3 * ((year + 4900 + month_term) / 100).astype(int)) / 4).astype(int)
-          + day - 32075 - 0.5 + hour / 24.0
-          )
+    jd = (
+        (1461 * ((year + 4800 + month_term)) / 4).astype(int)
+        + (367 * ((month - 2 - 12 * (month_term))) / 12).astype(int)
+        - ((3 * ((year + 4900 + month_term) / 100).astype(int)) / 4).astype(int)
+        + day
+        - 32075
+        - 0.5
+        + hour / 24.0
+    )
 
     n = jd - 2451545.0
 
@@ -117,11 +144,7 @@ def psa(times, latitude, longitude, coefficients=2020):
     L = p[2] + p[3] * n  # Eq 4
     g = p[4] + p[5] * n  # Eq 5
     lambda_e = (
-        L
-        + p[6] * np.sin(g)
-        + p[7] * np.sin(2*g)
-        + p[8]
-        + p[9] * np.sin(omega)
+        L + p[6] * np.sin(g) + p[7] * np.sin(2 * g) + p[8] + p[9] * np.sin(omega)
     )  # Eq 6
     epsilon = p[10] + p[11] * n + p[12] * np.cos(omega)  # Eq 7
 
@@ -132,19 +155,26 @@ def psa(times, latitude, longitude, coefficients=2020):
 
     # local coordinates:
     gmst = p[13] + p[14] * n + hour  # Eq 10
-    lmst = (gmst * 15 + lambda_t) * np.pi/180  # Eq 11
+    lmst = (gmst * 15 + lambda_t) * np.pi / 180  # Eq 11
     w = lmst - ra  # Eq 12
-    theta_z = np.arccos(np.cos(phi) * np.cos(w) * np.cos(d) + np.sin(d) * np.sin(phi))  # Eq 13
-    gamma = np.arctan2(-np.sin(w), (np.tan(d) * np.cos(phi) - np.sin(phi) * np.cos(w)))  # Eq 14
+    theta_z = np.arccos(
+        np.cos(phi) * np.cos(w) * np.cos(d) + np.sin(d) * np.sin(phi)
+    )  # Eq 13
+    gamma = np.arctan2(
+        -np.sin(w), (np.tan(d) * np.cos(phi) - np.sin(phi) * np.cos(w))
+    )  # Eq 14
 
     EMR = 6371.01  # Earth Mean Radius in km
     AU = 149597890  # Astronomical Unit in km
     theta_z = theta_z + (EMR / AU) * np.sin(theta_z)  # Eq 15,16
 
-    result = pd.DataFrame({
-        'elevation': 90 - np.degrees(theta_z),
-        'zenith': np.degrees(theta_z),
-        'azimuth': np.degrees(gamma) % 360,
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": 90 - np.degrees(theta_z),
+            "zenith": np.degrees(theta_z),
+            "azimuth": np.degrees(gamma) % 360,
+        },
+        index=times,
+    )
 
     return result

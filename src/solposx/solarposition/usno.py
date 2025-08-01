@@ -69,7 +69,7 @@ def usno(times, latitude, longitude, delta_t=67.0, gmst_option=1):
 
     # Geocentric apparent ecliptic longitude of the Sun
     # (adjusted for aberration) [deg]
-    L = q + 1.915 * sind(g) + 0.020 * sind(2*g)
+    L = q + 1.915 * sind(g) + 0.020 * sind(2 * g)
     # ensure L is between 0 and 360
     L = L % 360
 
@@ -86,7 +86,7 @@ def usno(times, latitude, longitude, delta_t=67.0, gmst_option=1):
     # JD_0 is the Julian date of the previous midnight (0h) UT1
     midnight = pd.DatetimeIndex(
         [t.replace(hour=0, minute=0, second=0) for t in times_utc]
-        )
+    )
 
     JD_0 = midnight.to_julian_date()
 
@@ -103,11 +103,15 @@ def usno(times, latitude, longitude, delta_t=67.0, gmst_option=1):
 
     # Greenwich mean sidereal time [hours]
     if gmst_option == 1:
-        GMST = (6.697375 + 0.065707485828 * DAY_UT + 1.0027379 * H
-                + 0.0854103 * T + 0.0000258 * T**2)
+        GMST = (
+            6.697375
+            + 0.065707485828 * DAY_UT
+            + 1.0027379 * H
+            + 0.0854103 * T
+            + 0.0000258 * T**2
+        )
     elif gmst_option == 2:
-        GMST = (6.697375 + 0.065709824279 * DAY_UT + 1.0027379 * H
-                + 0.0000258 * T**2)
+        GMST = 6.697375 + 0.065709824279 * DAY_UT + 1.0027379 * H + 0.0000258 * T**2
     elif gmst_option == 3:
         GMST = 18.697375 + 24.065709824279 * DAY_UT
     else:
@@ -137,18 +141,20 @@ def usno(times, latitude, longitude, delta_t=67.0, gmst_option=1):
     LHA = (GAST - RA) * 15 + longitude
 
     # solar elevation [deg]
-    elevation = asind(cosd(LHA) * cosd(d) * cosd(latitude)
-                      + sind(d) * sind(latitude))
+    elevation = asind(cosd(LHA) * cosd(d) * cosd(latitude) + sind(d) * sind(latitude))
 
     # azimuth [deg]
     azimuth = np.rad2deg(
-        np.arctan2(-sind(LHA),
-                   (tand(d) * cosd(latitude) - sind(latitude) * cosd(LHA))))
+        np.arctan2(-sind(LHA), (tand(d) * cosd(latitude) - sind(latitude) * cosd(LHA)))
+    )
     azimuth = azimuth % 360
 
-    result = pd.DataFrame({
-        'elevation': elevation,
-        'zenith': 90 - elevation,
-        'azimuth': azimuth,
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": elevation,
+            "zenith": 90 - elevation,
+            "azimuth": azimuth,
+        },
+        index=times,
+    )
     return result
