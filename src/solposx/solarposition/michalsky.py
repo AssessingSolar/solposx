@@ -5,8 +5,9 @@ from solposx import refraction
 from solposx.tools import _pandas_to_utc, _fractional_hour
 
 
-def michalsky(times, latitude, longitude, spencer_correction=True,
-              julian_date='original'):
+def michalsky(
+    times, latitude, longitude, spencer_correction=True, julian_date="original"
+):
     """
     Calculate solar position using the Michalsky algorithm.
 
@@ -86,17 +87,16 @@ def michalsky(times, latitude, longitude, spencer_correction=True,
 
     hour = _fractional_hour(times_utc)
 
-    if julian_date == 'original':
+    if julian_date == "original":
         year = times_utc.year
         day = times_utc.dayofyear
         delta = year - 1949
         leap = np.floor(delta / 4)
         jd = 2432916.5 + delta * 365 + leap + day + hour / 24
-    elif julian_date == 'pandas':
+    elif julian_date == "pandas":
         jd = times_utc.to_julian_date()
     else:
-        raise ValueError(
-            "`julian_date` has to be either `original` or `pandas`.")
+        raise ValueError("`julian_date` has to be either `original` or `pandas`.")
 
     n = jd - 2451545.0
 
@@ -111,7 +111,7 @@ def michalsky(times, latitude, longitude, spencer_correction=True,
     g = g % 360
 
     # l - ecliptic longitude [degrees]
-    l = L + 1.915 * sind(g) + 0.02 * sind(2*g)
+    l = L + 1.915 * sind(g) + 0.02 * sind(2 * g)
     # l has to be between 0 and 360 deg
     l = l % 360
 
@@ -142,8 +142,9 @@ def michalsky(times, latitude, longitude, spencer_correction=True,
     ha = (ha + 12) % 24 - 12
 
     # el - solar elevation angle [degrees]
-    el = asind(sind(dec) * sind(latitude) + cosd(dec) * cosd(latitude)
-               * cosd(15 * ha))  # to convert h to deg, multiply with 15
+    el = asind(
+        sind(dec) * sind(latitude) + cosd(dec) * cosd(latitude) * cosd(15 * ha)
+    )  # to convert h to deg, multiply with 15
 
     # az - azimuth [degrees]
     az = asind(-cosd(dec) * sind(15 * ha) / cosd(el))
@@ -166,11 +167,14 @@ def michalsky(times, latitude, longitude, spencer_correction=True,
     el = np.array(el)  # convert from Index to array
     r = refraction.michalsky(el)
 
-    result = pd.DataFrame({
-        'elevation': el,
-        'apparent_elevation': el + r,
-        'zenith': 90 - el,
-        'apparent_zenith': 90 - (el + r),
-        'azimuth': az,
-    }, index=times)
+    result = pd.DataFrame(
+        {
+            "elevation": el,
+            "apparent_elevation": el + r,
+            "zenith": 90 - el,
+            "apparent_zenith": 90 - (el + r),
+            "azimuth": az,
+        },
+        index=times,
+    )
     return result

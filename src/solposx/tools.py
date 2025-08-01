@@ -22,11 +22,13 @@ def _pandas_to_utc(pd_object):
 
     """
     try:
-        pd_object_utc = pd_object.tz_convert('UTC')
+        pd_object_utc = pd_object.tz_convert("UTC")
     except TypeError:
-        raise TypeError('The provided time stamps are timezone naive.'
-                        'Please make the time stamps timezone aware.'
-                        'See ``pandas.Timestamp.tz_localize``.')
+        raise TypeError(
+            "The provided time stamps are timezone naive."
+            "Please make the time stamps timezone aware."
+            "See ``pandas.Timestamp.tz_localize``."
+        )
     return pd_object_utc
 
 
@@ -42,8 +44,10 @@ def _fractional_hour(times):
     -------
     fraction_of_hour : pd.Index
     """
-    hour = (times.hour + (
-        times.minute + (times.second + times.microsecond*1e-6)/60)/60)
+    hour = (
+        times.hour
+        + (times.minute + (times.second + times.microsecond * 1e-6) / 60) / 60
+    )
     return hour
 
 
@@ -71,23 +75,23 @@ def calc_error(zenith_1, azimuth_1, zenith_2, azimuth_2):
     zenith_diff = zenith_1 - zenith_2
     zenith_bias = zenith_diff.mean()
     zenith_mad = np.abs(zenith_diff).mean()
-    zenith_rmsd = (zenith_diff**2).mean()**0.5
+    zenith_rmsd = (zenith_diff**2).mean() ** 0.5
 
     azimuth_diff = (azimuth_1 - azimuth_2 + 180) % 360 - 180  # handle 0/360 correctly
     azimuth_bias = azimuth_diff.mean()
     azimuth_mad = np.abs(azimuth_diff).mean()
-    azimuth_rmsd = (azimuth_diff**2).mean()**0.5
+    azimuth_rmsd = (azimuth_diff**2).mean() ** 0.5
 
     aoi = pvlib.irradiance.aoi(zenith_1, azimuth_1, zenith_2, azimuth_2)
-    combined_rmsd = (aoi**2).mean()**0.5
+    combined_rmsd = (aoi**2).mean() ** 0.5
 
     out = {
-        'zenith_bias': zenith_bias,
-        'zenith_mad': zenith_mad,
-        'zenith_rmsd': zenith_rmsd,
-        'azimuth_bias': azimuth_bias,
-        'azimuth_mad': azimuth_mad,
-        'azimuth_rmsd': azimuth_rmsd,
-        'combined_rmsd': combined_rmsd,
+        "zenith_bias": zenith_bias,
+        "zenith_mad": zenith_mad,
+        "zenith_rmsd": zenith_rmsd,
+        "azimuth_bias": azimuth_bias,
+        "azimuth_mad": azimuth_mad,
+        "azimuth_rmsd": azimuth_rmsd,
+        "combined_rmsd": combined_rmsd,
     }
     return out

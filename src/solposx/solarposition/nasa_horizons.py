@@ -2,11 +2,12 @@ import requests
 import pandas as pd
 import io
 
-URL = 'https://ssd.jpl.nasa.gov/api/horizons.api'
+URL = "https://ssd.jpl.nasa.gov/api/horizons.api"
 
 
-def nasa_horizons(latitude, longitude, start, end, elevation=0.,
-                  time_step='1h', url=URL):
+def nasa_horizons(
+    latitude, longitude, start, end, elevation=0.0, time_step="1h", url=URL
+):
     """
     Retrieve solar positions from NASA's Horizons web service.
 
@@ -65,8 +66,8 @@ def nasa_horizons(latitude, longitude, start, end, elevation=0.,
         "CENTER": "coord@399",  # input coordinates for Earth (399)
         "COORD_TYPE": "GEODETIC",  # latitude, longitude, elevation in degrees
         "SITE_COORD": f"{longitude},{latitude},{elevation/1000}",
-        "START_TIME": pd.Timestamp(start).strftime('%Y-%m-%d %H:%M'),
-        "STOP_TIME": pd.Timestamp(end).strftime('%Y-%m-%d %H:%M'),
+        "START_TIME": pd.Timestamp(start).strftime("%Y-%m-%d %H:%M"),
+        "STOP_TIME": pd.Timestamp(end).strftime("%Y-%m-%d %H:%M"),
         "STEP_SIZE": time_step,
         "QUANTITIES": "1,2,4,36",
         "REF_SYSTEM": "ICRF",
@@ -81,16 +82,13 @@ def nasa_horizons(latitude, longitude, start, end, elevation=0.,
         "SOLAR_ELONG": "0,180",
         "EXTRA_PREC": "NO",  # toggle additional digits on some angles (RA/DEC)
         "CSV_FORMAT": "NO",
-        "OBJ_DATA": "NO"  # whether to return summary data
+        "OBJ_DATA": "NO",  # whether to return summary data
     }
 
     # manual formatting of the url as all parameters except format shall be
     # in enclosed in single quotes
     url_formatted = (
-        url
-        + '?'
-        + "format=text&"
-        + '&'.join([f"{k}='{v}'" for k, v in params.items()])
+        url + "?" + "format=text&" + "&".join([f"{k}='{v}'" for k, v in params.items()])
     )
 
     res = requests.get(url_formatted)
@@ -98,38 +96,40 @@ def nasa_horizons(latitude, longitude, start, end, elevation=0.,
     fbuf = io.StringIO(res.content.decode())
 
     lines = fbuf.readlines()
-    first_line = lines.index('$$SOE\n') + 1
-    last_line = lines.index('$$EOE\n', first_line)
+    first_line = lines.index("$$SOE\n") + 1
+    last_line = lines.index("$$EOE\n", first_line)
     header_line = lines[first_line - 3]
-    data_str = [header_line] + lines[first_line: last_line]
+    data_str = [header_line] + lines[first_line:last_line]
 
-    data = pd.read_fwf(io.StringIO('\n'.join(data_str)),
-                       index_col=[0], na_values=['n.a.'])
-    data.index = pd.to_datetime(data.index, format='%Y-%b-%d %H:%M:%S.%f')
-    data.index = data.index.tz_localize('UTC')
+    data = pd.read_fwf(
+        io.StringIO("\n".join(data_str)), index_col=[0], na_values=["n.a."]
+    )
+    data.index = pd.to_datetime(data.index, format="%Y-%b-%d %H:%M:%S.%f")
+    data.index = data.index.tz_localize("UTC")
 
-    data = data.rename(columns={
-        'Unnamed: 1': 'units',
-        'RA_3sigma': 'uncertainty_right_ascension',
-        'DEC_3sigma': 'uncertainty_declination',
-    })
+    data = data.rename(
+        columns={
+            "Unnamed: 1": "units",
+            "RA_3sigma": "uncertainty_right_ascension",
+            "DEC_3sigma": "uncertainty_declination",
+        }
+    )
 
     # split columns as several params have a shared header name for two params
     column_name_split_map = {
-        'R.A.___(ICRF)___DEC': ['right_ascension', 'declination'],
-        'R.A._(a-appar)_DEC.': ['apparent_right_ascesion', 'apparent_declination'],
-        'Azi____(a-app)___Elev': ['apparent_azimuth', 'apparent_elevation'],
+        "R.A.___(ICRF)___DEC": ["right_ascension", "declination"],
+        "R.A._(a-appar)_DEC.": ["apparent_right_ascesion", "apparent_declination"],
+        "Azi____(a-app)___Elev": ["apparent_azimuth", "apparent_elevation"],
     }
 
     for old_name, new_names in column_name_split_map.items():
-        data[new_names] = \
-            data[old_name].str.split(r'\s+', expand=True).astype(float)
+        data[new_names] = data[old_name].str.split(r"\s+", expand=True).astype(float)
 
     data = data.drop(columns=list(column_name_split_map.keys()))
 
-    data.index.name = 'time'
+    data.index.name = "time"
     try:
-        del data['units']
+        del data["units"]
     except KeyError:
         pass
 

@@ -1,8 +1,9 @@
 """Bennett refraction model."""
+
 from pvlib.tools import tand
 
 
-def bennett(elevation, pressure=101325., temperature=12.):
+def bennett(elevation, pressure=101325.0, temperature=12.0):
     r"""
     Atmospheric refraction correction based on the Bennett algorithm.
 
