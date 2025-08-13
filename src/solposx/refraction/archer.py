@@ -43,7 +43,7 @@ def archer(elevation):
        :doi:`10.1016/0038-092X(80)90410-7`.
     .. [2] R. Walraven, "Calculating the position of the sun," Solar Energy,
        vol. 20, no. 5, pp. 393-397, 1978, :doi:`10.1016/0038-092X(78)90155-X`.
-    """  # noqa: #501
+    """  # noqa: E501
 
     zenith = 90 - elevation
     C1 = cosd(zenith)

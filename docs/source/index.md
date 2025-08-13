@@ -8,9 +8,6 @@ If you are new to this package, check out the introduction to [solar position al
 ## Contributing
 Contributions to the repository, e.g., bug fixes, feature requests, are more than welcome! The package is openly developed on [GitHub](https://github.com/AssessingSolar/solposx).
 
-## Contributing
-Contributions to the repository, e.g., bug fixes, feature requests, are more than welcome!
-
 
 ## License
 [BSD 3-clause](https://github.com/assessingsolar/solposx/blob/main/LICENSE).

@@ -1,6 +1,5 @@
 """Hughes refraction model."""
 import numpy as np
-import pandas as pd
 
 
 def hughes(elevation, pressure=101325., temperature=12.):
@@ -50,7 +49,7 @@ def hughes(elevation, pressure=101325., temperature=12.):
        <https://pvpmc.sandia.gov/app/uploads/sites/243/2022/10/Engineering-Astronomy.pdf>`_
     .. [2] J. C. Zimmerman, "Sun-pointing programs and their accuracy,"
        SANDIA Technical Report SAND-81-0761, 1981, :doi:`10.2172/6377969`.
-    """  # noqa: #501
+    """  # noqa: E501
     TanEl = np.tan(np.radians(elevation))
 
     Refract = 58.1/TanEl - 0.070/(TanEl**3) + 8.6e-05/(TanEl**5)
