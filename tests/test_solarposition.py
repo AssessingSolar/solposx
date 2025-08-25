@@ -535,7 +535,7 @@ def test_delta_t_array_input():
     usno_float = usno(times, 50, 10, delta_t=67.0)
     pd.testing.assert_frame_equal(usno_array, usno_float)
 
-    
+
 def test_delta_t_series_input():
     # test that delta_t can be specified as either an array or float
     times = pd.date_range('2020-03-23 12', periods=10, tz='UTC')

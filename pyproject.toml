@@ -49,6 +49,7 @@ dynamic = ["version"]
 optional = ["skyfield>=1.51", "sg2"]
 test = ["pytest>=7", "pytest-cov", "packaging"]
 doc = [
+    "solposx[optional]",
     "sphinx==8.2.3",
     "myst-nb==1.1.2",
     "sphinx-book-theme==1.1.4",
