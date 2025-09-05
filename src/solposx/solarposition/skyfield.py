@@ -7,7 +7,7 @@ def skyfield(times, latitude, longitude, de='de440.bsp'):
     """
     Calculate solar position using the Skyfield Python package.
 
-    Skyfield is a Python package that can calculate high precision
+    Skyfield is a Python package [1]_, [2]_ that can calculate high precision
     position of stars, planets, and satellites in orbit around the Earth based
     on ephemerides. Calculated positions should agree with the Astronomical
     Almanac to within 0.0005 arcseconds.
