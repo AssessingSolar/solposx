@@ -119,4 +119,3 @@ def test_calc_error_special_cases():
         'azimuth_bias': -180, 'azimuth_mad': 180, 'azimuth_rmsd': 180,
         'combined_rmsd': 90,
     })
-    

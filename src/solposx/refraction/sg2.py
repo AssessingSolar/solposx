@@ -43,7 +43,7 @@ def sg2(elevation, pressure=101325., temperature=12.):
        computation of the position of the sun for multidecadal time period,"
        Solar Energy, vol. 86, no. 10, pp. 3072-3083, 2012,
        :doi:`10.1016/j.solener.2012.07.018`
-    """  # noqa: #501
+    """  # noqa: E501
 
     pressure = pressure / 100  # convert Pa to hPa
     elevation_rad = np.deg2rad(elevation)
