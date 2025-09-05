@@ -16,10 +16,9 @@ where = ["src"]
 [project]
 name = "solposx"
 authors = [
-    {name = "Adam R. Jensen"},
+    {name = "Adam R. Jensen", email = "adam-r-j@hotmail.com"},
     {name = "Kevin S. Anderson"},
     {name = "Ioannis Sifnaios"},
-    {email = "adam-r-j@hotmail.com"},
 ]
 description = "solposx is a Python package for calculating solar position angles and comparing solar position algorithms."
 readme = "README.md"
@@ -58,7 +57,7 @@ doc = [
 all = ["solposx[optional,test,doc]"]
 
 [project.urls]
-# Documentation = "https://solposx.readthedocs.io"
+Documentation = "https://solposx.readthedocs.io"
 Issues = "https://github.com/assessingsolar/solposx/issues"
 Repository = "https://github.com/assessingsolar/solposx.git"
 Changelog = "https://github.com/assessingsolar/solposx/blob/main/docs/source/whatsnew.md"
