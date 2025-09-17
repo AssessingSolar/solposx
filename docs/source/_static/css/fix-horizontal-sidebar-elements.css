@@ -1,0 +1,13 @@
+/* By default, sphinx-book-theme sets a flexbox for the sidebar items arragement.
+They may appear in horizontal.
+The following lines change the default CSS to be pydata-sphinx-theme alike. */
+
+.bd-sidebar-secondary .sidebar-secondary-items {
+    display: unset;
+    gap: unset;
+}
+
+/* Fix separator line discontinuity */
+.bd-sidebar-secondary .sidebar-secondary-items .sidebar-secondary-item {
+    padding-bottom: 0.5rem;
+}
