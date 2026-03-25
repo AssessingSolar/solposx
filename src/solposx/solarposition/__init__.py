@@ -1,3 +1,4 @@
+from solposx.solarposition.utility import sunup_solarposition  # noqa: F401
 from solposx.solarposition.iqbal import iqbal  # noqa: F401
 from solposx.solarposition.michalsky import michalsky  # noqa: F401
 from solposx.solarposition.nasa_horizons import nasa_horizons  # noqa: F401
