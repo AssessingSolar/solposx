@@ -85,9 +85,7 @@ def usno(times, latitude, longitude, *, delta_t=67.0, gmst_option=1):
     d = asind(sind(e) * sind(L))
 
     # JD_0 is the Julian date of the previous midnight (0h) UT1
-    midnight = pd.DatetimeIndex(
-        [t.replace(hour=0, minute=0, second=0) for t in times_utc]
-    )
+    midnight = times_utc.normalize()  # Convert times_utc to midnight
 
     JD_0 = midnight.to_julian_date()
 
