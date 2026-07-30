@@ -14,6 +14,8 @@ Changed
 ^^^^^^^
 * matplotlib is now an optional ``doc`` dependency instead of a required
   dependency. (:pull:`146`)
+* Add support for correctly handling sub-second timestamp resolution in
+  :py:func:`solposx.solarposition.usno`. (:issue:`156`, :pull:`157`)
 
 Added
 ^^^^^
