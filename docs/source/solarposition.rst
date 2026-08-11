@@ -23,3 +23,11 @@ Algorithms that include an atmospheric refraction model also return
    solarposition.spa
    solarposition.usno
    solarposition.walraven
+
+Utility
+-------
+
+.. autosummary::
+   :toctree: generated/
+
+   solarposition.sunup_solarposition
